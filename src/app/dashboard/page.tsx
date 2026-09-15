@@ -1,63 +1,54 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import SignOutButton from '@/components/sign-out-button'
 
-export default async function DashboardPage() {
+export default async function DashboardOverviewPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, clients(name)')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'client') redirect('/admin')
-
-  const clientRecord = profile.clients as unknown as { name: string } | null
-  const clientName = clientRecord?.name ?? 'Your dashboard'
-
-  const { data: leads } = await supabase
+  const { count: totalLeads } = await supabase.from('leads').select('id', { count: 'exact', head: true })
+  const { count: newLeads } = await supabase
     .from('leads')
-    .select('id, name, status, created_at')
-    .order('created_at', { ascending: false })
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'NEW')
+  const { count: highPriority } = await supabase
+    .from('leads')
+    .select('id', { count: 'exact', head: true })
+    .eq('priority', 'high')
+  const { count: appointments } = await supabase
+    .from('appointments')
+    .select('id', { count: 'exact', head: true })
+  const { count: followupsDue } = await supabase
+    .from('followups')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending')
 
   return (
-    <main className="min-h-screen bg-slate-950 p-8 text-white">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{clientName}</h1>
-        <SignOutButton />
+    <main className="pt-4">
+      <h1 className="mb-6 text-2xl font-semibold">Overview</h1>
+
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+        <StatCard label="Total leads" value={totalLeads ?? 0} />
+        <StatCard label="New leads" value={newLeads ?? 0} />
+        <StatCard label="High priority" value={highPriority ?? 0} />
+        <StatCard label="Appointments" value={appointments ?? 0} />
+        <StatCard label="Follow-ups due" value={followupsDue ?? 0} />
       </div>
 
-      {!leads || leads.length === 0 ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-12 text-center text-slate-400">
-          No leads have been captured yet. They&apos;ll show up here once your assistant is
-          connected and starts talking to visitors.
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-800">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-900 text-slate-400">
-              <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((l) => (
-                <tr key={l.id} className="border-t border-slate-800">
-                  <td className="px-4 py-3">{l.name ?? '—'}</td>
-                  <td className="px-4 py-3 capitalize">{l.status}</td>
-                  <td className="px-4 py-3">{new Date(l.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-slate-400">
+        {totalLeads && totalLeads > 0
+          ? "We'll show an AI-generated daily summary here once enough activity comes in."
+          : 'No activity yet. Once your assistant is connected, a plain-English daily summary of your enquiries will appear here.'}
+      </div>
     </main>
+  )
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="mt-1 text-2xl font-semibold">{value}</p>
+    </div>
   )
 }
