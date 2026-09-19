@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClientAction } from '@/app/admin/actions'
+import SubmitButton from '@/components/submit-button'
 
 export default function NewClientPage() {
   return (
@@ -39,6 +40,22 @@ export default function NewClientPage() {
           </div>
 
           <div>
+            <h2 className="mb-3 text-sm font-medium text-slate-400">Assistant connection</h2>
+            <p className="mb-3 text-xs text-slate-500">
+              Leave this blank if the assistant isn&apos;t built yet — you can add it later from the
+              client&apos;s detail page.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Assistant name" name="assistant_name" placeholder="e.g. Smith Law Receptionist" />
+              <Field
+                label="Assistant URL"
+                name="assistant_url"
+                placeholder="https://client-bot-name.vercel.app"
+              />
+            </div>
+          </div>
+
+          <div>
             <h2 className="mb-3 text-sm font-medium text-slate-400">Billing</h2>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Setup fee (USD)" name="setup_fee" type="number" defaultValue="999" />
@@ -49,12 +66,7 @@ export default function NewClientPage() {
             </p>
           </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-gradient-to-r from-red-600 to-blue-600 px-4 py-2 font-medium text-white transition hover:opacity-90"
-          >
-            Create client
-          </button>
+          <SubmitButton pendingLabel="Creating client…">Create client</SubmitButton>
         </form>
       </div>
     </main>
