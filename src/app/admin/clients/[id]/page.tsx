@@ -1,7 +1,12 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient as createServerClient } from '@/lib/supabase/server'
-import { regenerateSecretAction, updateClientStatusAction } from '@/app/admin/actions'
+import {
+  regenerateSecretAction,
+  updateAssistantConnectionAction,
+  updateClientStatusAction,
+} from '@/app/admin/actions'
+import SubmitButton from '@/components/submit-button'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -42,12 +47,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               client.status === 'active' ? 'inactive' : 'active'
             )}
           >
-            <button
-              type="submit"
-              className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800"
+            <SubmitButton
+              pendingLabel="Working…"
+              className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
             >
               {client.status === 'active' ? 'Deactivate' : 'Activate'}
-            </button>
+            </SubmitButton>
           </form>
         </div>
 
@@ -72,13 +77,51 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           {!connection ? (
             <p className="text-slate-500">No connection record found.</p>
           ) : (
-            <div className="space-y-3 text-sm">
+            <div className="space-y-4 text-sm">
               <Detail label="Status" value={connection.status} />
+              <Detail label="Current URL" value={connection.assistant_url} />
               <Detail
                 label="Last event"
                 value={connection.last_event_at ? new Date(connection.last_event_at).toLocaleString() : 'Never'}
               />
-              <div>
+
+              <form
+                action={updateAssistantConnectionAction.bind(null, connection.id, client.id)}
+                className="space-y-3 border-t border-slate-800 pt-4"
+              >
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400" htmlFor="assistant_name">
+                    Assistant name
+                  </label>
+                  <input
+                    id="assistant_name"
+                    name="assistant_name"
+                    defaultValue={connection.assistant_name ?? ''}
+                    placeholder="e.g. Smith Law Receptionist"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-red-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400" htmlFor="assistant_url">
+                    Assistant URL
+                  </label>
+                  <input
+                    id="assistant_url"
+                    name="assistant_url"
+                    defaultValue={connection.assistant_url ?? ''}
+                    placeholder="https://client-bot-name.vercel.app"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-red-500"
+                  />
+                </div>
+                <SubmitButton
+                  pendingLabel="Saving…"
+                  className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
+                >
+                  Save assistant details
+                </SubmitButton>
+              </form>
+
+              <div className="border-t border-slate-800 pt-4">
                 <p className="mb-1 text-slate-400">Ingest secret</p>
                 <code className="block break-all rounded-lg bg-slate-800 px-3 py-2 text-xs text-slate-300">
                   {connection.ingest_secret}
@@ -87,15 +130,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   Put this in the client bot&apos;s environment variables as AURENN_WEBHOOK_SECRET —
                   never in browser-facing code.
                 </p>
-              </div>
-              <form action={regenerateSecretAction.bind(null, connection.id, client.id)}>
-                <button
-                  type="submit"
-                  className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800"
+                <form
+                  action={regenerateSecretAction.bind(null, connection.id, client.id)}
+                  className="mt-3"
                 >
-                  Regenerate secret
-                </button>
-              </form>
+                  <SubmitButton
+                    pendingLabel="Regenerating…"
+                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    Regenerate secret
+                  </SubmitButton>
+                </form>
+              </div>
             </div>
           )}
         </section>
