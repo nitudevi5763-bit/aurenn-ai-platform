@@ -34,6 +34,8 @@ export async function createClientAction(formData: FormData) {
   const contactEmail = String(formData.get('contact_email') || '').trim()
   const loginEmail = String(formData.get('login_email') || '').trim()
   const loginPassword = String(formData.get('login_password') || '').trim()
+  const assistantName = String(formData.get('assistant_name') || '').trim()
+  const assistantUrl = String(formData.get('assistant_url') || '').trim()
   const monthlyFee = Number(formData.get('monthly_fee') || 79)
   const setupFee = Number(formData.get('setup_fee') || 999)
 
@@ -86,7 +88,8 @@ export async function createClientAction(formData: FormData) {
 
   const { error: connectionError } = await admin.from('assistant_connections').insert({
     client_id: newClient.id,
-    assistant_name: `${name} Assistant`,
+    assistant_name: assistantName || `${name} Assistant`,
+    assistant_url: assistantUrl || null,
     status: 'pending',
     ingest_secret: generateSecret(),
   })
@@ -119,6 +122,33 @@ export async function regenerateSecretAction(connectionId: string, clientId: str
   const { error } = await admin
     .from('assistant_connections')
     .update({ ingest_secret: generateSecret(), status: 'pending' })
+    .eq('id', connectionId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  revalidatePath(`/admin/clients/${clientId}`)
+}
+
+export async function updateAssistantConnectionAction(
+  connectionId: string,
+  clientId: string,
+  formData: FormData
+) {
+  await requireAdmin()
+
+  const assistantName = String(formData.get('assistant_name') || '').trim()
+  const assistantUrl = String(formData.get('assistant_url') || '').trim()
+
+  const admin = createAdminClient()
+
+  const { error } = await admin
+    .from('assistant_connections')
+    .update({
+      assistant_name: assistantName || null,
+      assistant_url: assistantUrl || null,
+    })
     .eq('id', connectionId)
 
   if (error) {
