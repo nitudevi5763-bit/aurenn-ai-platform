@@ -1,17 +1,50 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
 
-:root {
-  --background: #020617;
-  --foreground: #f8fafc;
+@theme {
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Surfaces — layered depth, never pure black */
+  --color-canvas: #06070d;
+  --color-surface: #0c0e18;
+  --color-surface-2: #131627;
+
+  /* Borders */
+  --color-border: #22263b;
+  --color-border-strong: #2e3350;
+
+  /* Text hierarchy */
+  --color-fg: #f2f3f8;
+  --color-fg-muted: #9aa0c0;
+  --color-fg-subtle: #656b8c;
+
+  /* Accent — refined indigo, restrained blue/cyan secondary */
+  --color-accent: #6d6ff2;
+  --color-accent-hover: #8082f5;
+  --color-accent-2: #38bdf8;
+
+  /* Semantic */
+  --color-success: #2fbf78;
+  --color-warning: #e0a92d;
+  --color-danger: #ef5c6e;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  transition-timing-function: var(--ease-standard);
 }
