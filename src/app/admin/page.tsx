@@ -4,6 +4,7 @@ import KpiCard from '@/components/ui/kpi-card'
 import StatusBadge from '@/components/ui/status-badge'
 import EmptyState from '@/components/ui/empty-state'
 import PageHeader from '@/components/ui/page-header'
+import { Building2, CheckCircle2, Users } from 'lucide-react'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -32,9 +33,9 @@ export default async function AdminPage() {
       />
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard label="Total clients" value={totalClients} emphasis="primary" />
-        <KpiCard label="Active clients" value={activeClients} />
-        <KpiCard label="Total leads" value={totalLeads ?? 0} />
+        <KpiCard label="Total clients" value={totalClients} icon={Building2} tone="accent" emphasis="primary" />
+        <KpiCard label="Active clients" value={activeClients} icon={CheckCircle2} tone="success" />
+        <KpiCard label="Total leads" value={totalLeads ?? 0} icon={Users} tone="accent2" />
       </div>
 
       {!clients || clients.length === 0 ? (
