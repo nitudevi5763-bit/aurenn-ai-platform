@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AppShell from '@/components/app-shell'
-import { Building2 } from 'lucide-react'
+import type { NavItem } from '@/components/sidebar-nav'
 
-const NAV = [{ href: '/admin', label: 'Clients', icon: Building2 }]
+const NAV: NavItem[] = [{ href: '/admin', label: 'Clients', icon: 'building-2' }]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
