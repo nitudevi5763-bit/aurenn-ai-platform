@@ -1,7 +1,6 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import SignOutButton from '@/components/sign-out-button'
+import AppShell from '@/components/app-shell'
 
 const NAV = [
   { href: '/dashboard', label: 'Overview' },
@@ -26,32 +25,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!profile || profile.role !== 'client') redirect('/admin')
 
   const clientRecord = profile.clients as unknown as { name: string } | null
-  const clientName = clientRecord?.name ?? 'Your dashboard'
+  const workspaceName = clientRecord?.name ?? 'Your dashboard'
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        <aside className="w-56 border-r border-slate-800 p-6">
-          <p className="mb-8 text-lg font-semibold">{clientName}</p>
-          <nav className="space-y-1">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block rounded-lg px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-900 hover:text-white"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-        <div className="flex-1">
-          <div className="flex justify-end p-4">
-            <SignOutButton />
-          </div>
-          <div className="px-8 pb-8">{children}</div>
-        </div>
-      </div>
-    </div>
+    <AppShell workspaceName={workspaceName} navItems={NAV}>
+      {children}
+    </AppShell>
   )
 }
