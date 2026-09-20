@@ -24,7 +24,7 @@ function generateSecret() {
   return randomBytes(24).toString('hex')
 }
 
-export async function createClientAction(formData: FormData) {
+export async function createClientAction(prevState: { error: string | null }, formData: FormData) {
   await requireAdmin()
 
   const name = String(formData.get('name') || '').trim()
@@ -40,7 +40,7 @@ export async function createClientAction(formData: FormData) {
   const setupFee = Number(formData.get('setup_fee') || 999)
 
   if (!name || !loginEmail || !loginPassword) {
-    throw new Error('Business name, login email, and login password are required.')
+    return { error: 'Business name, login email, and login password are required.' }
   }
 
   const admin = createAdminClient()
@@ -62,7 +62,7 @@ export async function createClientAction(formData: FormData) {
     .single()
 
   if (clientError || !newClient) {
-    throw new Error(clientError?.message || 'Could not create client.')
+    return { error: clientError?.message || 'Could not create client.' }
   }
 
   const { data: authUser, error: authError } = await admin.auth.admin.createUser({
@@ -72,7 +72,7 @@ export async function createClientAction(formData: FormData) {
   })
 
   if (authError || !authUser.user) {
-    throw new Error(authError?.message || 'Could not create the client login.')
+    return { error: authError?.message || 'Could not create the client login.' }
   }
 
   const { error: profileError } = await admin.from('profiles').insert({
@@ -83,7 +83,7 @@ export async function createClientAction(formData: FormData) {
   })
 
   if (profileError) {
-    throw new Error(profileError.message)
+    return { error: profileError.message }
   }
 
   const { error: connectionError } = await admin.from('assistant_connections').insert({
@@ -95,7 +95,7 @@ export async function createClientAction(formData: FormData) {
   })
 
   if (connectionError) {
-    throw new Error(connectionError.message)
+    return { error: connectionError.message }
   }
 
   const { error: subscriptionError } = await admin.from('subscriptions').insert({
@@ -107,7 +107,7 @@ export async function createClientAction(formData: FormData) {
   })
 
   if (subscriptionError) {
-    throw new Error(subscriptionError.message)
+    return { error: subscriptionError.message }
   }
 
   revalidatePath('/admin')
