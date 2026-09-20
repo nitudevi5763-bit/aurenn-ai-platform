@@ -2,9 +2,32 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { LucideIcon } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Users,
+  MessagesSquare,
+  CalendarClock,
+  Clock,
+  CreditCard,
+  Building2,
+  type LucideIcon,
+} from 'lucide-react'
 
-export type NavItem = { href: string; label: string; icon: LucideIcon }
+// Icon lookup lives entirely inside this Client Component. Server Components
+// pass only the string key (below) across the boundary — never the actual
+// component function, which is not serializable.
+const ICONS = {
+  'layout-dashboard': LayoutDashboard,
+  users: Users,
+  'messages-square': MessagesSquare,
+  'calendar-clock': CalendarClock,
+  clock: Clock,
+  'credit-card': CreditCard,
+  'building-2': Building2,
+} satisfies Record<string, LucideIcon>
+
+export type IconName = keyof typeof ICONS
+export type NavItem = { href: string; label: string; icon: IconName }
 
 export default function SidebarNav({
   items,
@@ -20,7 +43,7 @@ export default function SidebarNav({
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2">
         {items.map((item) => {
           const active = pathname === item.href
-          const Icon = item.icon
+          const Icon = ICONS[item.icon]
           return (
             <Link
               key={item.href}
@@ -43,7 +66,7 @@ export default function SidebarNav({
     <nav className="flex-1 space-y-0.5">
       {items.map((item) => {
         const active = pathname === item.href
-        const Icon = item.icon
+        const Icon = ICONS[item.icon]
         return (
           <Link
             key={item.href}
