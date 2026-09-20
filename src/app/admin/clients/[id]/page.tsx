@@ -10,6 +10,7 @@ import SubmitButton from '@/components/submit-button'
 import KpiCard from '@/components/ui/kpi-card'
 import StatusBadge from '@/components/ui/status-badge'
 import PageHeader from '@/components/ui/page-header'
+import { Users, DollarSign } from 'lucide-react'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -59,8 +60,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             <StatusBadge status={client.status} />
           </div>
         </div>
-        <KpiCard label="Total leads" value={totalLeads ?? 0} emphasis="primary" />
-        <KpiCard label="Monthly fee" value={`$${client.monthly_fee}`} />
+        <KpiCard label="Total leads" value={totalLeads ?? 0} icon={Users} tone="accent2" emphasis="primary" />
+        <KpiCard label="Monthly fee" value={`$${client.monthly_fee}`} icon={DollarSign} tone="success" />
       </div>
 
       <section className="mb-6 rounded-xl border border-border bg-surface p-6">
