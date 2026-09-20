@@ -1,15 +1,15 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AppShell from '@/components/app-shell'
-import { LayoutDashboard, Users, MessagesSquare, CalendarClock, Clock, CreditCard } from 'lucide-react'
+import type { NavItem } from '@/components/sidebar-nav'
 
-const NAV = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/leads', label: 'Leads', icon: Users },
-  { href: '/dashboard/conversations', label: 'Conversations', icon: MessagesSquare },
-  { href: '/dashboard/appointments', label: 'Appointments', icon: CalendarClock },
-  { href: '/dashboard/followups', label: 'Follow-ups', icon: Clock },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
+const NAV: NavItem[] = [
+  { href: '/dashboard', label: 'Overview', icon: 'layout-dashboard' },
+  { href: '/dashboard/leads', label: 'Leads', icon: 'users' },
+  { href: '/dashboard/conversations', label: 'Conversations', icon: 'messages-square' },
+  { href: '/dashboard/appointments', label: 'Appointments', icon: 'calendar-clock' },
+  { href: '/dashboard/followups', label: 'Follow-ups', icon: 'clock' },
+  { href: '/dashboard/billing', label: 'Billing', icon: 'credit-card' },
 ]
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
