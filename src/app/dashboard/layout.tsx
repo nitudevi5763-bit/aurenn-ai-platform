@@ -12,7 +12,13 @@ const NAV: NavItem[] = [
   { href: '/dashboard/billing', label: 'Billing', icon: 'credit-card' },
 ]
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({
+  children,
+  drawer,
+}: {
+  children: React.ReactNode
+  drawer: React.ReactNode
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -31,6 +37,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <AppShell workspaceName={workspaceName} navItems={NAV}>
       {children}
+      {drawer}
     </AppShell>
   )
 }
