@@ -10,6 +10,7 @@ import {
   Clock,
   CreditCard,
   Building2,
+  Settings,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -24,6 +25,7 @@ const ICONS = {
   clock: Clock,
   'credit-card': CreditCard,
   'building-2': Building2,
+  settings: Settings,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS
