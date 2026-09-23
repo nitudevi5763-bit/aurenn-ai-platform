@@ -10,6 +10,7 @@ const NAV: NavItem[] = [
   { href: '/dashboard/appointments', label: 'Appointments', icon: 'calendar-clock' },
   { href: '/dashboard/followups', label: 'Follow-ups', icon: 'clock' },
   { href: '/dashboard/billing', label: 'Billing', icon: 'credit-card' },
+  { href: '/dashboard/settings', label: 'Settings', icon: 'settings' },
 ]
 
 export default async function DashboardLayout({
