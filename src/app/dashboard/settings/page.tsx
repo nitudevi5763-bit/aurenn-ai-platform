@@ -36,6 +36,7 @@ export default async function SettingsPage() {
       <div className="flex flex-col gap-8 md:flex-row">
         <nav className="flex gap-1 overflow-x-auto md:w-48 md:flex-col md:gap-0.5">
           {SECTIONS.map((s) => (
+           <a
             
               key={s.id}
               href={`#${s.id}`}
