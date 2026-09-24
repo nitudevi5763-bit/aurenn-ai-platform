@@ -12,9 +12,9 @@ export default function AppShell({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-canvas text-fg">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-60 shrink-0 border-r border-border bg-surface md:block">
+    <div className="min-h-dvh bg-canvas text-fg">
+      <div className="flex min-h-dvh">
+        <aside className="hidden w-60 shrink-0 border-r border-border bg-surface lg:sticky lg:top-0 lg:block lg:h-dvh lg:overflow-y-auto">
           <div className="flex h-full flex-col p-5">
             <div className="mb-8 flex items-center gap-2.5 px-1">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-xs font-bold text-white shadow-lg shadow-accent/20">
@@ -34,15 +34,17 @@ export default function AppShell({
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="border-b border-border bg-surface/60 backdrop-blur md:hidden">
-            <div className="flex items-center justify-between px-5 py-3">
-              <span className="text-sm font-semibold">{workspaceName}</span>
+          <header className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur lg:hidden">
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+              <span className="min-w-0 truncate text-sm font-semibold">{workspaceName}</span>
               <SignOutButton />
             </div>
             <SidebarNav items={navItems} variant="horizontal" />
           </header>
-          <main className="flex-1 px-5 py-6 md:px-8 md:py-8">
-            <PageTransition>{children}</PageTransition>
+          <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+            <div className="mx-auto w-full max-w-[1440px]">
+              <PageTransition>{children}</PageTransition>
+            </div>
           </main>
         </div>
       </div>
