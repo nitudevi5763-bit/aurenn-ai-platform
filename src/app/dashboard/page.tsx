@@ -47,7 +47,7 @@ export default async function DashboardOverviewPage() {
     <>
       <PageHeader title="Overview" subtitle="What's happening with your enquiries." />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
         <KpiCard label="Total leads" value={totalLeads ?? 0} icon={Users} tone="accent" emphasis="primary" />
         <KpiCard label="New leads" value={newLeads ?? 0} icon={Sparkles} tone="accent2" />
         <KpiCard label="High priority" value={highPriority ?? 0} icon={AlertTriangle} tone="warning" />
@@ -55,12 +55,12 @@ export default async function DashboardOverviewPage() {
         <KpiCard label="Follow-ups due" value={followupsDue ?? 0} icon={Clock} tone="neutral" />
       </div>
 
-      <div className="mb-8 rounded-xl border border-border-strong bg-surface-2 p-5">
+      <div className="mb-8 rounded-xl border border-border-strong bg-surface-2 p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
             <Sparkles size={15} strokeWidth={2} />
           </span>
-          <div>
+          <div className="min-w-0">
             <p className="mb-0.5 text-xs font-medium tracking-wide text-fg-subtle uppercase">AI Daily Brief</p>
             <p className="text-sm text-fg">{brief}</p>
           </div>
@@ -68,7 +68,7 @@ export default async function DashboardOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <h2 className="mb-3 text-sm font-medium text-fg-muted">Recent Leads</h2>
           {!recentLeads || recentLeads.length === 0 ? (
             <EmptyState
@@ -77,42 +77,44 @@ export default async function DashboardOverviewPage() {
             />
           ) : (
             <div className="overflow-hidden rounded-xl border border-border">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-surface text-fg-subtle">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Service</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentLeads.map((l) => (
-                    <tr
-                      key={l.id}
-                      className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
-                    >
-                      <td className="px-4 py-3">
-                        <Link href={`/dashboard/leads/${l.id}`} className="text-fg hover:text-accent">
-                          {l.name ?? '—'}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted">{l.service ?? '—'}</td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={l.status} />
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted">
-                        {new Date(l.created_at).toLocaleDateString()}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[520px] text-left text-sm">
+                  <thead className="bg-surface text-fg-subtle">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="px-4 py-3 font-medium">Service</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recentLeads.map((l) => (
+                      <tr
+                        key={l.id}
+                        className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
+                      >
+                        <td className="px-4 py-3">
+                          <Link href={`/dashboard/leads/${l.id}`} className="text-fg hover:text-accent">
+                            {l.name ?? '—'}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-fg-muted">{l.service ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={l.status} />
+                        </td>
+                        <td className="px-4 py-3 text-fg-muted">
+                          {new Date(l.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
 
-        <div>
+        <div className="min-w-0">
           <h2 className="mb-3 text-sm font-medium text-fg-muted">Priority Leads</h2>
           {!priorityLeads || priorityLeads.length === 0 ? (
             <EmptyState title="Nothing urgent" description="High-priority leads will show up here as they come in." />
@@ -122,14 +124,14 @@ export default async function DashboardOverviewPage() {
                 <Link
                   key={l.id}
                   href={`/dashboard/leads/${l.id}`}
-                  className="flex items-center justify-between rounded-lg border border-border bg-surface p-3 transition-colors duration-fast hover:bg-surface-2"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface p-3 transition-colors duration-fast hover:bg-surface-2"
                 >
-                  <div>
-                    <p className="text-sm text-fg">{l.name ?? 'Unnamed lead'}</p>
-                    <p className="text-xs text-fg-subtle">{l.service ?? '—'}</p>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-fg">{l.name ?? 'Unnamed lead'}</p>
+                    <p className="truncate text-xs text-fg-subtle">{l.service ?? '—'}</p>
                   </div>
                   {l.ai_score != null && (
-                    <span className="text-sm font-semibold text-warning">{l.ai_score}</span>
+                    <span className="shrink-0 text-sm font-semibold text-warning">{l.ai_score}</span>
                   )}
                 </Link>
               ))}
