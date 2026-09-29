@@ -22,26 +22,28 @@ export default async function ConversationDetailPage({ params }: { params: Promi
 
   return (
     <div className="rounded-xl border border-border bg-surface">
-      <div className="border-b border-border p-5">
+      <div className="border-b border-border p-4 sm:p-5">
         <Link
           href="/dashboard/conversations"
-          className="mb-3 inline-flex items-center gap-1 text-sm text-fg-subtle transition-colors duration-fast hover:text-fg md:hidden"
+          className="mb-3 inline-flex items-center gap-1 text-sm text-fg-subtle transition-colors duration-fast hover:text-fg lg:hidden"
         >
           <ArrowLeft size={14} /> Back to conversations
         </Link>
-        <p className="text-lg font-semibold text-fg">{lead?.name || 'Unknown visitor'}</p>
+        <p className="break-words text-lg font-semibold text-fg">{lead?.name || 'Unknown visitor'}</p>
         <p className="text-xs text-fg-subtle">{new Date(conversation.started_at).toLocaleString()}</p>
         {(lead?.email || lead?.phone) && (
-          <p className="mt-1 text-xs text-fg-subtle">{[lead?.email, lead?.phone].filter(Boolean).join(' · ')}</p>
+          <p className="mt-1 text-xs break-words text-fg-subtle">
+            {[lead?.email, lead?.phone].filter(Boolean).join(' · ')}
+          </p>
         )}
       </div>
 
-      <div className="border-b border-border p-5">
+      <div className="border-b border-border p-4 sm:p-5">
         <p className="mb-1 text-xs font-medium tracking-wide text-fg-subtle uppercase">AI summary</p>
-        <p className="text-sm text-fg">{conversation.ai_summary || 'Not generated yet.'}</p>
+        <p className="text-sm break-words text-fg">{conversation.ai_summary || 'Not generated yet.'}</p>
       </div>
 
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <p className="mb-3 text-xs font-medium tracking-wide text-fg-subtle uppercase">Transcript</p>
         {transcript.length === 0 ? (
           <p className="text-sm text-fg-subtle">No transcript recorded yet.</p>
@@ -50,7 +52,7 @@ export default async function ConversationDetailPage({ params }: { params: Promi
             {transcript.map((msg, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm break-words ${
                   msg.role === 'assistant' ? 'bg-accent/10 text-fg' : 'ml-auto bg-surface-2 text-fg'
                 }`}
               >
