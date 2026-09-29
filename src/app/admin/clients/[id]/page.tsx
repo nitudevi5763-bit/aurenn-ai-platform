@@ -53,7 +53,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         }
       />
 
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-5">
           <p className="text-xs font-medium tracking-wide text-fg-subtle uppercase">Status</p>
           <div className="mt-2">
@@ -64,9 +64,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <KpiCard label="Monthly fee" value={`$${client.monthly_fee}`} icon={DollarSign} tone="success" />
       </div>
 
-      <section className="mb-6 rounded-xl border border-border bg-surface p-6">
+      <section className="mb-6 rounded-xl border border-border bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-sm font-medium text-fg-muted">Business details</h2>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           <Detail label="Website" value={client.website} />
           <Detail label="Industry" value={client.industry} />
           <Detail label="Country" value={client.country} />
@@ -74,7 +74,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </dl>
       </section>
 
-      <section className="rounded-xl border border-border bg-surface p-6">
+      <section className="rounded-xl border border-border bg-surface p-5 sm:p-6">
         <h2 className="mb-4 text-sm font-medium text-fg-muted">Assistant connection</h2>
         {!connection ? (
           <p className="text-fg-subtle">No connection record found.</p>
@@ -128,7 +128,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
             <div className="border-t border-border pt-4">
               <p className="mb-1 text-fg-subtle">Ingest secret</p>
-              <code className="block break-all rounded-lg bg-surface-2 px-3 py-2 text-xs text-fg-muted">
+              <code className="block overflow-x-auto rounded-lg bg-surface-2 px-3 py-2 text-xs whitespace-pre-wrap text-fg-muted break-all">
                 {connection.ingest_secret}
               </code>
               <p className="mt-1 text-xs text-fg-subtle">
@@ -153,9 +153,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-fg-subtle">{label}</p>
-      <p className="text-fg">{value || '—'}</p>
+      <p className="break-words text-fg">{value || '—'}</p>
     </div>
   )
 }
