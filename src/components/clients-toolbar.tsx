@@ -31,7 +31,7 @@ export default function ClientsToolbar() {
 
   return (
     <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
+      <div className="relative min-w-0 flex-1">
         <Search
           size={15}
           strokeWidth={2}
@@ -45,27 +45,29 @@ export default function ClientsToolbar() {
         />
       </div>
 
-      <select
-        defaultValue={searchParams.get('status') ?? 'all'}
-        onChange={(e) => updateParam('status', e.target.value)}
-        className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
-      >
-        <option value="all">All statuses</option>
-        <option value="active">Active</option>
-        <option value="trial">Trial</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <div className="flex gap-3">
+        <select
+          defaultValue={searchParams.get('status') ?? 'all'}
+          onChange={(e) => updateParam('status', e.target.value)}
+          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent sm:flex-none"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="trial">Trial</option>
+          <option value="inactive">Inactive</option>
+        </select>
 
-      <select
-        defaultValue={searchParams.get('sort') ?? 'created_desc'}
-        onChange={(e) => updateParam('sort', e.target.value)}
-        className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
-      >
-        <option value="created_desc">Newest first</option>
-        <option value="created_asc">Oldest first</option>
-        <option value="name_asc">Name A–Z</option>
-        <option value="name_desc">Name Z–A</option>
-      </select>
+        <select
+          defaultValue={searchParams.get('sort') ?? 'created_desc'}
+          onChange={(e) => updateParam('sort', e.target.value)}
+          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent sm:flex-none"
+        >
+          <option value="created_desc">Newest first</option>
+          <option value="created_asc">Oldest first</option>
+          <option value="name_asc">Name A–Z</option>
+          <option value="name_desc">Name Z–A</option>
+        </select>
+      </div>
     </div>
   )
 }
