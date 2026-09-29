@@ -51,7 +51,7 @@ export default async function AdminPage({
         action={
           <Link
             href="/admin/clients/new"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-fast hover:bg-accent-hover"
+            className="inline-block rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-fast hover:bg-accent-hover"
           >
             + Add client
           </Link>
@@ -82,47 +82,50 @@ export default async function AdminPage({
             />
           ) : (
             <div className="overflow-hidden rounded-xl border border-border">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-surface text-fg-subtle">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Industry</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Assistant</th>
-                    <th className="px-4 py-3 font-medium">Monthly fee</th>
-                    <th className="px-4 py-3 font-medium">Created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients!.map((c) => {
-                    const connections = c.assistant_connections as unknown as { status: string }[] | null
-                    const assistantStatus = connections?.[0]?.status ?? 'pending'
-                    return (
-                      <tr
-                        key={c.id}
-                        className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
-                      >
-                        <td className="px-4 py-3">
-                          <Link href={`/admin/clients/${c.id}`} className="text-fg hover:text-accent">
-                            {c.name}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-fg-muted">{c.industry || '—'}</td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={c.status} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={assistantStatus} />
-                        </td>
-                        <td className="px-4 py-3 text-fg-muted">${c.monthly_fee}</td>
-                        <td className="px-4 py-3 text-fg-muted">
-                          {new Date(c.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+              {/* Only the table scrolls sideways on narrow screens — never the whole page */}
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left text-sm">
+                  <thead className="bg-surface text-fg-subtle">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="hidden px-4 py-3 font-medium sm:table-cell">Industry</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Assistant</th>
+                      <th className="px-4 py-3 font-medium">Monthly fee</th>
+                      <th className="hidden px-4 py-3 font-medium md:table-cell">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clients!.map((c) => {
+                      const connections = c.assistant_connections as unknown as { status: string }[] | null
+                      const assistantStatus = connections?.[0]?.status ?? 'pending'
+                      return (
+                        <tr
+                          key={c.id}
+                          className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
+                        >
+                          <td className="px-4 py-3">
+                            <Link href={`/admin/clients/${c.id}`} className="text-fg hover:text-accent">
+                              {c.name}
+                            </Link>
+                          </td>
+                          <td className="hidden px-4 py-3 text-fg-muted sm:table-cell">{c.industry || '—'}</td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={c.status} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={assistantStatus} />
+                          </td>
+                          <td className="px-4 py-3 text-fg-muted">${c.monthly_fee}</td>
+                          <td className="hidden px-4 py-3 text-fg-muted md:table-cell">
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
