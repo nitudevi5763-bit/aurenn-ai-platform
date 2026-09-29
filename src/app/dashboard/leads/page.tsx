@@ -60,39 +60,43 @@ export default async function LeadsPage({
             <EmptyState title="No leads match" description="Try a different search term or clear the filters." />
           ) : (
             <div className="overflow-hidden rounded-xl border border-border">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-surface text-fg-subtle">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Service</th>
-                    <th className="px-4 py-3 font-medium">Priority</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leads.map((l) => (
-                    <tr
-                      key={l.id}
-                      className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
-                    >
-                      <td className="px-4 py-3">
-                        <Link href={`/dashboard/leads/${l.id}`} className="text-fg hover:text-accent">
-                          {l.name ?? '—'}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted">{l.service ?? '—'}</td>
-                      <td className="px-4 py-3">
-                        {l.priority ? <StatusBadge status={l.priority} /> : <span className="text-fg-subtle">—</span>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={l.status} />
-                      </td>
-                      <td className="px-4 py-3 text-fg-muted">{new Date(l.created_at).toLocaleDateString()}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px] text-left text-sm">
+                  <thead className="bg-surface text-fg-subtle">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="hidden px-4 py-3 font-medium sm:table-cell">Service</th>
+                      <th className="px-4 py-3 font-medium">Priority</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="hidden px-4 py-3 font-medium md:table-cell">Created</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {leads.map((l) => (
+                      <tr
+                        key={l.id}
+                        className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
+                      >
+                        <td className="px-4 py-3">
+                          <Link href={`/dashboard/leads/${l.id}`} className="text-fg hover:text-accent">
+                            {l.name ?? '—'}
+                          </Link>
+                        </td>
+                        <td className="hidden px-4 py-3 text-fg-muted sm:table-cell">{l.service ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          {l.priority ? <StatusBadge status={l.priority} /> : <span className="text-fg-subtle">—</span>}
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={l.status} />
+                        </td>
+                        <td className="hidden px-4 py-3 text-fg-muted md:table-cell">
+                          {new Date(l.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
