@@ -33,11 +33,10 @@ export default async function SettingsPage() {
     <>
       <PageHeader title="Settings" subtitle="Manage your business details, assistant, and account security." />
 
-      <div className="flex flex-col gap-8 md:flex-row">
-        <nav className="flex gap-1 overflow-x-auto md:w-48 md:flex-col md:gap-0.5">
+      <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+        <nav className="scrollbar-none flex gap-1 overflow-x-auto lg:w-48 lg:flex-col lg:gap-0.5">
           {SECTIONS.map((s) => (
-           <a
-            
+            <a
               key={s.id}
               href={`#${s.id}`}
               className="shrink-0 rounded-lg px-3 py-2 text-sm text-fg-muted transition-colors duration-fast hover:bg-surface-2 hover:text-fg"
@@ -47,7 +46,7 @@ export default async function SettingsPage() {
           ))}
         </nav>
 
-        <div className="max-w-xl flex-1 space-y-10">
+        <div className="max-w-xl min-w-0 flex-1 space-y-10">
           <section id="business">
             <h2 className="mb-3 text-lg font-semibold text-fg">Business</h2>
             {client && <BusinessSettingsForm client={client} />}
@@ -55,12 +54,12 @@ export default async function SettingsPage() {
 
           <section id="assistant">
             <h2 className="mb-3 text-lg font-semibold text-fg">Assistant</h2>
-            <div className="space-y-3 rounded-xl border border-border bg-surface p-6 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-fg-subtle">Name</span>
-                <span className="text-fg">{connection?.assistant_name || '—'}</span>
+            <div className="space-y-3 rounded-xl border border-border bg-surface p-5 text-sm sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <span className="shrink-0 text-fg-subtle">Name</span>
+                <span className="min-w-0 truncate text-right text-fg">{connection?.assistant_name || '—'}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <span className="text-fg-subtle">Status</span>
                 {connection ? <StatusBadge status={connection.status} /> : <span className="text-fg-subtle">—</span>}
               </div>
