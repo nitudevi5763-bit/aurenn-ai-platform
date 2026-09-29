@@ -66,12 +66,13 @@ export default function AddClientWizard() {
         &larr; Back to clients
       </Link>
 
-      <div className="mb-8 flex items-center">
+      {/* Stepper: scrolls sideways on very narrow screens instead of squeezing labels unreadable */}
+      <div className="mb-8 flex items-center overflow-x-auto pb-1">
         {STEPS.map((s, i) => (
           <div key={s.id} className="flex flex-1 items-center">
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex shrink-0 flex-col items-center gap-1.5">
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors duration-base ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors duration-base ${
                   step > s.id
                     ? 'bg-accent text-white'
                     : step === s.id
@@ -81,24 +82,26 @@ export default function AddClientWizard() {
               >
                 {step > s.id ? <Check size={14} /> : s.id.toString().padStart(2, '0')}
               </div>
-              <span className={`text-xs whitespace-nowrap ${step === s.id ? 'text-fg' : 'text-fg-subtle'}`}>
+              <span
+                className={`text-[10px] whitespace-nowrap sm:text-xs ${step === s.id ? 'text-fg' : 'text-fg-subtle'}`}
+              >
                 {s.label}
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className={`mx-2 h-px flex-1 ${step > s.id ? 'bg-accent' : 'bg-border'}`} />
+              <div className={`mx-2 h-px w-4 flex-1 sm:w-auto ${step > s.id ? 'bg-accent' : 'bg-border'}`} />
             )}
           </div>
         ))}
       </div>
 
-      <form action={formAction} className="rounded-xl border border-border bg-surface p-8">
+      <form action={formAction} className="rounded-xl border border-border bg-surface p-5 sm:p-8">
         <div className={step === 1 ? 'block' : 'hidden'}>
           <h2 className="mb-1 text-lg font-semibold text-fg">Business details</h2>
           <p className="mb-5 text-sm text-fg-subtle">Who is this workspace for?</p>
           <div className="space-y-4">
             <Field label="Business name" name="name" value={values.name} onChange={(v) => update('name', v)} required />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Website" name="website" value={values.website} onChange={(v) => update('website', v)} />
               <Field
                 label="Industry"
@@ -108,7 +111,7 @@ export default function AddClientWizard() {
                 placeholder="e.g. Law Firm"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Country" name="country" value={values.country} onChange={(v) => update('country', v)} />
               <Field
                 label="Contact email"
@@ -175,7 +178,7 @@ export default function AddClientWizard() {
           <p className="mb-5 text-sm text-fg-subtle">
             The setup fee is never shown on the client&apos;s billing page — only the monthly fee is.
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field
               label="Setup fee (USD)"
               name="setup_fee"
@@ -309,9 +312,9 @@ function ReviewSection({ title, children }: { title: string; children: React.Rea
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-fg-subtle">{label}</span>
-      <span className="text-fg">{value || '—'}</span>
+    <div className="flex items-start justify-between gap-3">
+      <span className="shrink-0 text-fg-subtle">{label}</span>
+      <span className="min-w-0 text-right break-all text-fg">{value || '—'}</span>
     </div>
   )
 }
