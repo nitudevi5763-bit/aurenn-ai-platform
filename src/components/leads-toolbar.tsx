@@ -30,8 +30,8 @@ export default function LeadsToolbar() {
   }
 
   return (
-    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="relative min-w-0 flex-1">
         <Search
           size={15}
           strokeWidth={2}
@@ -41,46 +41,48 @@ export default function LeadsToolbar() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search leads…"
-          className="w-full rounded-lg border border-border bg-surface py-2 pr-3 pl-9 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent sm:w-64"
+          className="w-full rounded-lg border border-border bg-surface py-2 pr-3 pl-9 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent sm:w-56"
         />
       </div>
 
-      <select
-        defaultValue={searchParams.get('status') ?? 'all'}
-        onChange={(e) => updateParam('status', e.target.value)}
-        className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
-      >
-        <option value="all">All statuses</option>
-        <option value="NEW">New</option>
-        <option value="CONTACTED">Contacted</option>
-        <option value="QUALIFIED">Qualified</option>
-        <option value="BOOKED">Booked</option>
-        <option value="FOLLOW_UP">Follow-up</option>
-        <option value="CLOSED">Closed</option>
-        <option value="DISQUALIFIED">Disqualified</option>
-      </select>
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+        <select
+          defaultValue={searchParams.get('status') ?? 'all'}
+          onChange={(e) => updateParam('status', e.target.value)}
+          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
+        >
+          <option value="all">All statuses</option>
+          <option value="NEW">New</option>
+          <option value="CONTACTED">Contacted</option>
+          <option value="QUALIFIED">Qualified</option>
+          <option value="BOOKED">Booked</option>
+          <option value="FOLLOW_UP">Follow-up</option>
+          <option value="CLOSED">Closed</option>
+          <option value="DISQUALIFIED">Disqualified</option>
+        </select>
 
-      <select
-        defaultValue={searchParams.get('priority') ?? 'all'}
-        onChange={(e) => updateParam('priority', e.target.value)}
-        className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
-      >
-        <option value="all">All priorities</option>
-        <option value="high">High</option>
-        <option value="medium">Medium</option>
-        <option value="low">Low</option>
-      </select>
+        <select
+          defaultValue={searchParams.get('priority') ?? 'all'}
+          onChange={(e) => updateParam('priority', e.target.value)}
+          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
+        >
+          <option value="all">All priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
 
-      <select
-        defaultValue={searchParams.get('sort') ?? 'created_desc'}
-        onChange={(e) => updateParam('sort', e.target.value)}
-        className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent"
-      >
-        <option value="created_desc">Newest first</option>
-        <option value="created_asc">Oldest first</option>
-        <option value="score_desc">Highest score</option>
-        <option value="name_asc">Name A–Z</option>
-      </select>
+        <select
+          defaultValue={searchParams.get('sort') ?? 'created_desc'}
+          onChange={(e) => updateParam('sort', e.target.value)}
+          className="col-span-2 min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors duration-fast focus:border-accent sm:col-span-1"
+        >
+          <option value="created_desc">Newest first</option>
+          <option value="created_asc">Oldest first</option>
+          <option value="score_desc">Highest score</option>
+          <option value="name_asc">Name A–Z</option>
+        </select>
+      </div>
     </div>
   )
 }
