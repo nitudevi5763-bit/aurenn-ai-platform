@@ -75,31 +75,33 @@ function FollowupGroup({
         </p>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-surface text-fg-subtle">
-              <tr>
-                <th className="px-4 py-3 font-medium">Lead</th>
-                <th className="px-4 py-3 font-medium">Due</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((f) => (
-                <tr
-                  key={f.id}
-                  className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
-                >
-                  <td className="px-4 py-3 text-fg">{f.leads?.name ?? '—'}</td>
-                  <td className="px-4 py-3 text-fg-muted">{f.due_date ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={f.status} />
-                  </td>
-                  <td className="px-4 py-3 text-fg-muted">{f.notes ?? '—'}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <thead className="bg-surface text-fg-subtle">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Lead</th>
+                  <th className="px-4 py-3 font-medium">Due</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Notes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((f) => (
+                  <tr
+                    key={f.id}
+                    className="border-t border-border transition-colors duration-fast hover:bg-surface/60"
+                  >
+                    <td className="px-4 py-3 text-fg">{f.leads?.name ?? '—'}</td>
+                    <td className="px-4 py-3 text-fg-muted">{f.due_date ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={f.status} />
+                    </td>
+                    <td className="max-w-[240px] px-4 py-3 break-words text-fg-muted">{f.notes ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
