@@ -14,9 +14,11 @@ export default async function LeadDetailContent({ id }: { id: string }) {
 
   return (
     <div>
-      <h1 className="mb-6 pr-8 text-2xl font-semibold text-fg">{lead.name ?? 'Unnamed lead'}</h1>
+      <h1 className="mb-6 pr-8 text-xl font-semibold break-words text-fg sm:text-2xl">
+        {lead.name ?? 'Unnamed lead'}
+      </h1>
 
-      <div className="mb-6 grid grid-cols-3 gap-3">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <InfoCard label="Status">
           <StatusBadge status={lead.status} />
         </InfoCard>
@@ -28,9 +30,9 @@ export default async function LeadDetailContent({ id }: { id: string }) {
         </InfoCard>
       </div>
 
-      <section className="mb-4 rounded-xl border border-border bg-surface p-5">
+      <section className="mb-4 rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-3 text-sm font-medium text-fg-muted">Contact information</h2>
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
           <Detail label="Email" value={lead.email} />
           <Detail label="Phone" value={lead.phone} />
           <Detail label="Service" value={lead.service} />
@@ -38,14 +40,14 @@ export default async function LeadDetailContent({ id }: { id: string }) {
         </dl>
       </section>
 
-      <section className="mb-4 rounded-xl border border-border bg-surface p-5">
+      <section className="mb-4 rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-3 text-sm font-medium text-fg-muted">Original enquiry</h2>
-        <p className="text-sm text-fg">{lead.original_enquiry || 'Not recorded.'}</p>
+        <p className="text-sm break-words text-fg">{lead.original_enquiry || 'Not recorded.'}</p>
       </section>
 
-      <section className="rounded-xl border border-border bg-surface p-5">
+      <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-3 text-sm font-medium text-fg-muted">AI summary</h2>
-        <p className="text-sm text-fg">{lead.ai_summary || conversation?.ai_summary || 'Not generated yet.'}</p>
+        <p className="text-sm break-words text-fg">{lead.ai_summary || conversation?.ai_summary || 'Not generated yet.'}</p>
       </section>
     </div>
   )
@@ -62,9 +64,9 @@ function InfoCard({ label, children }: { label: string; children: React.ReactNod
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-fg-subtle">{label}</p>
-      <p className="text-fg">{value || '—'}</p>
+      <p className="break-words text-fg">{value || '—'}</p>
     </div>
   )
 }
