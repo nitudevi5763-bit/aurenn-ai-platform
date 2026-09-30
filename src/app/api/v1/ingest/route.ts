@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { scoreLead } from '@/lib/ai/score-lead'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -63,7 +64,6 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
-    // A bare ping may be sent with no body at all — treat that as a ping too.
     body = { type: 'ping' }
   }
 
@@ -75,9 +75,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // "ping" just proves the secret works and marks the bot as connected —
-  // it never touches leads/conversations/appointments, so testing a
-  // connection never pollutes a client's real dashboard data.
   if (body.type === 'ping') {
     await supabase
       .from('assistant_connections')
@@ -93,13 +90,17 @@ export async function POST(req: NextRequest) {
     let result: Record<string, unknown>
 
     if (body.type === 'lead') {
-      const leadId = await upsertLead(supabase, clientId, body.lead)
+      const { id: leadId, isNew } = await upsertLead(supabase, clientId, body.lead)
       result = { lead_id: leadId }
+
+      if (isNew && body.lead?.original_enquiry) {
+        await maybeScoreLead(supabase, leadId, body.lead.original_enquiry, body.lead.priority)
+      }
     } else if (body.type === 'conversation') {
       if (!Array.isArray(body.conversation?.transcript)) {
         throw new Error('conversation.transcript must be an array')
       }
-      const leadId = await upsertLead(supabase, clientId, body.lead)
+      const { id: leadId, isNew } = await upsertLead(supabase, clientId, body.lead)
       const { data, error } = await supabase
         .from('conversations')
         .insert({
@@ -113,11 +114,21 @@ export async function POST(req: NextRequest) {
         .single()
       if (error) throw error
       result = { lead_id: leadId, conversation_id: data.id }
+
+      if (isNew) {
+        const transcriptText = body
+          .conversation!.transcript.map((m) => (m as { content?: string })?.content ?? '')
+          .filter(Boolean)
+          .join('\n')
+        if (transcriptText) {
+          await maybeScoreLead(supabase, leadId, transcriptText, body.lead?.priority)
+        }
+      }
     } else {
       if (!body.appointment?.appointment_time) {
         throw new Error('appointment.appointment_time is required')
       }
-      const leadId = await upsertLead(supabase, clientId, body.lead)
+      const { id: leadId } = await upsertLead(supabase, clientId, body.lead)
       const { data, error } = await supabase
         .from('appointments')
         .insert({
@@ -152,7 +163,7 @@ async function upsertLead(
   supabase: ReturnType<typeof createAdminClient>,
   clientId: string,
   lead?: LeadInput
-): Promise<string> {
+): Promise<{ id: string; isNew: boolean }> {
   if (lead?.email || lead?.phone) {
     let query = supabase.from('leads').select('id').eq('client_id', clientId)
     if (lead.email) query = query.eq('email', lead.email)
@@ -170,7 +181,7 @@ async function upsertLead(
           priority: lead.priority ?? undefined,
         })
         .eq('id', existing.id)
-      return existing.id
+      return { id: existing.id, isNew: false }
     }
   }
 
@@ -191,7 +202,26 @@ async function upsertLead(
     .single()
 
   if (error) throw error
-  return created.id
+  return { id: created.id, isNew: true }
+}
+
+// Scores the lead via Gemini and saves the result. Silently does nothing
+// if scoring fails or isn't configured — a lead is never lost over this.
+// If the caller explicitly set a priority, that's respected and only the
+// score/summary get filled in.
+async function maybeScoreLead(
+  supabase: ReturnType<typeof createAdminClient>,
+  leadId: string,
+  text: string,
+  explicitPriority?: string
+) {
+  const scored = await scoreLead(text)
+  if (!scored) return
+
+  const update: Record<string, unknown> = { ai_score: scored.score, ai_summary: scored.summary }
+  if (!explicitPriority) update.priority = scored.priority
+
+  await supabase.from('leads').update(update).eq('id', leadId)
 }
 
 async function logEvent(
