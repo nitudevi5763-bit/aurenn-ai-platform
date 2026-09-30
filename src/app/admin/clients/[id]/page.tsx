@@ -7,6 +7,7 @@ import {
   updateClientStatusAction,
 } from '@/app/admin/actions'
 import SubmitButton from '@/components/submit-button'
+import TestConnectionButton from '@/components/test-connection-button'
 import KpiCard from '@/components/ui/kpi-card'
 import StatusBadge from '@/components/ui/status-badge'
 import PageHeader from '@/components/ui/page-header'
@@ -89,6 +90,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               label="Last event"
               value={connection.last_event_at ? new Date(connection.last_event_at).toLocaleString() : 'Never'}
             />
+
+            <div className="border-t border-border pt-4">
+              <TestConnectionButton connectionId={connection.id} clientId={client.id} />
+            </div>
 
             <form
               action={updateAssistantConnectionAction.bind(null, connection.id, client.id)}
