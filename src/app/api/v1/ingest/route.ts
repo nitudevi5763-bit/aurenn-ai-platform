@@ -22,15 +22,12 @@ type LeadInput = {
 }
 
 type Body = {
-  type: 'lead' | 'conversation' | 'appointment'
+  type: 'lead' | 'conversation' | 'appointment' | 'ping'
   lead?: LeadInput
   conversation?: { transcript: unknown[]; ai_summary?: string; started_at?: string }
   appointment?: { appointment_time: string; source?: string; status?: string }
 }
 
-// Supabase's own errors are plain objects, not real Error instances — this
-// pulls a readable message out of either kind so we never show a useless
-// generic "Unknown error" again.
 function errMessage(err: unknown): string {
   if (err instanceof Error) return err.message
   if (err && typeof err === 'object' && 'message' in err) {
@@ -66,16 +63,30 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
-    await logEvent(supabase, clientId, 'unknown', null, 'error', 'Invalid JSON body')
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400, headers: CORS_HEADERS })
+    // A bare ping may be sent with no body at all — treat that as a ping too.
+    body = { type: 'ping' }
   }
 
-  if (!body.type || !['lead', 'conversation', 'appointment'].includes(body.type)) {
+  if (!body.type || !['lead', 'conversation', 'appointment', 'ping'].includes(body.type)) {
     await logEvent(supabase, clientId, body.type ?? 'unknown', body, 'error', 'Missing or invalid "type"')
     return NextResponse.json(
-      { error: 'type must be one of: lead, conversation, appointment' },
+      { error: 'type must be one of: lead, conversation, appointment, ping' },
       { status: 400, headers: CORS_HEADERS }
     )
+  }
+
+  // "ping" just proves the secret works and marks the bot as connected —
+  // it never touches leads/conversations/appointments, so testing a
+  // connection never pollutes a client's real dashboard data.
+  if (body.type === 'ping') {
+    await supabase
+      .from('assistant_connections')
+      .update({ status: 'connected', last_event_at: new Date().toISOString() })
+      .eq('id', connection.id)
+
+    await logEvent(supabase, clientId, 'ping', body, 'success', null)
+
+    return NextResponse.json({ success: true, message: 'pong' }, { status: 200, headers: CORS_HEADERS })
   }
 
   try {
