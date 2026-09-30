@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
       const { data, error } = await supabase
         .from('conversations')
         .insert({
+          client_id: clientId,
           lead_id: leadId,
           transcript: body.conversation!.transcript,
           ai_summary: body.conversation!.ai_summary ?? null,
@@ -109,6 +110,7 @@ export async function POST(req: NextRequest) {
       const { data, error } = await supabase
         .from('appointments')
         .insert({
+          client_id: clientId,
           lead_id: leadId,
           appointment_time: body.appointment.appointment_time,
           source: body.appointment.source ?? null,
