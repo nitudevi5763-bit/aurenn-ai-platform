@@ -17,7 +17,10 @@ export default function StatusBadge({ status }: { status: string }) {
   const tone = TONE_MAP[status.toLowerCase()] ?? 'bg-fg-subtle/10 text-fg-muted'
 
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize ${tone}`}>
+    <span
+      role="status"
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize ${tone}`}
+    >
       {status}
     </span>
   )
