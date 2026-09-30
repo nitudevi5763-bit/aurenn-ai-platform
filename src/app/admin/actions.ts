@@ -172,3 +172,47 @@ export async function updateClientStatusAction(clientId: string, status: 'active
   revalidatePath('/admin')
   revalidatePath(`/admin/clients/${clientId}`)
 }
+
+const INGEST_URL = 'https://aurenn-ai-platform.vercel.app/api/v1/ingest'
+
+export async function testConnectionAction(
+  connectionId: string,
+  clientId: string,
+  _prevState: { success: boolean; message: string } | null,
+  _formData: FormData
+) {
+  await requireAdmin()
+
+  const admin = createAdminClient()
+
+  const { data: connection } = await admin
+    .from('assistant_connections')
+    .select('ingest_secret')
+    .eq('id', connectionId)
+    .single()
+
+  if (!connection) {
+    return { success: false, message: 'Connection not found.' }
+  }
+
+  try {
+    const res = await fetch(INGEST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${connection.ingest_secret}` },
+      body: JSON.stringify({ type: 'ping' }),
+    })
+    const data = await res.json().catch(() => ({}))
+
+    revalidatePath(`/admin/clients/${clientId}`)
+
+    if (res.ok) {
+      return { success: true, message: 'Connected — the secret is valid and the ingest API responded.' }
+    }
+    return { success: false, message: data?.error || `Connection test failed (status ${res.status}).` }
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : 'Could not reach the ingest API.',
+    }
+  }
+}
