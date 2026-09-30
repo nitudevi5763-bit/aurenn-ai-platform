@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Bots (VisaBot Aria, Sara, Denta, and any future one) call this endpoint
-// server-to-server to report leads, conversations, and appointments back
-// into this platform. Auth is a per-client secret from assistant_connections
-// — see the "Ingest secret" shown on each client's admin detail page.
-
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -33,10 +28,21 @@ type Body = {
   appointment?: { appointment_time: string; source?: string; status?: string }
 }
 
+// Supabase's own errors are plain objects, not real Error instances — this
+// pulls a readable message out of either kind so we never show a useless
+// generic "Unknown error" again.
+function errMessage(err: unknown): string {
+  if (err instanceof Error) return err.message
+  if (err && typeof err === 'object' && 'message' in err) {
+    const details = 'details' in err ? ` (${(err as { details?: string }).details})` : ''
+    return String((err as { message: string }).message) + details
+  }
+  return 'Unknown error'
+}
+
 export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
 
-  // --- 1. Authenticate the caller by its secret alone ---
   const authHeader = req.headers.get('authorization') ?? ''
   const secret = authHeader.replace(/^Bearer\s+/i, '').trim()
 
@@ -56,7 +62,6 @@ export async function POST(req: NextRequest) {
 
   const clientId = connection.client_id
 
-  // --- 2. Parse and validate the body ---
   let body: Body
   try {
     body = await req.json()
@@ -115,7 +120,6 @@ export async function POST(req: NextRequest) {
       result = { lead_id: leadId, appointment_id: data.id }
     }
 
-    // Mark the bot as actively connected
     await supabase
       .from('assistant_connections')
       .update({ status: 'connected', last_event_at: new Date().toISOString() })
@@ -125,15 +129,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, ...result }, { status: 200, headers: CORS_HEADERS })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
+    const message = errMessage(err)
     await logEvent(supabase, clientId, body.type, body, 'error', message)
     return NextResponse.json({ error: message }, { status: 400, headers: CORS_HEADERS })
   }
 }
 
-// Finds an existing lead for this client by email or phone (so repeated
-// messages from the same visitor don't create duplicate leads), or creates
-// a new one. Always scoped to the client_id resolved from the secret.
 async function upsertLead(
   supabase: ReturnType<typeof createAdminClient>,
   clientId: string,
