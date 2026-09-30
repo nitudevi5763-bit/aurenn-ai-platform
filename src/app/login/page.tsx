@@ -48,10 +48,11 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <form
         onSubmit={handleSubmit}
+        aria-describedby={error ? 'login-error' : undefined}
         className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-xl"
       >
         <div className="mb-6 flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+          <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-accent" />
           <h1 className="text-lg font-semibold text-fg">Aurenn AI</h1>
         </div>
         <p className="mb-6 text-sm text-fg-subtle">Sign in to your dashboard</p>
@@ -62,6 +63,7 @@ export default function LoginPage() {
         <input
           id="email"
           type="email"
+          autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -74,17 +76,23 @@ export default function LoginPage() {
         <input
           id="password"
           type="password"
+          autoComplete="current-password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="mb-6 w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-fg outline-none transition-colors duration-fast focus:border-accent"
         />
 
-        {error && <p className="mb-4 text-sm text-danger">{error}</p>}
+        {error && (
+          <p id="login-error" role="alert" className="mb-4 text-sm text-danger">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
+          aria-busy={loading}
           className="w-full rounded-lg bg-accent px-4 py-2 font-medium text-white transition-colors duration-fast hover:bg-accent-hover disabled:opacity-50"
         >
           {loading ? 'Signing in…' : 'Sign in'}
