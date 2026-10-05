@@ -12,12 +12,10 @@ import {
   CreditCard,
   Building2,
   Settings,
+  Activity,
   type LucideIcon,
 } from 'lucide-react'
 
-// Icon lookup lives entirely inside this Client Component. Server Components
-// pass only the string key (below) across the boundary — never the actual
-// component function, which is not serializable.
 const ICONS = {
   'layout-dashboard': LayoutDashboard,
   users: Users,
@@ -27,14 +25,12 @@ const ICONS = {
   'credit-card': CreditCard,
   'building-2': Building2,
   settings: Settings,
+  activity: Activity,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS
 export type NavItem = { href: string; label: string; icon: IconName }
 
-// Top-level entries like /admin or /dashboard only match exactly (otherwise
-// they would light up on every sub-page). Deeper entries also match their
-// sub-pages, e.g. /dashboard/leads stays active on /dashboard/leads/123.
 function isActive(pathname: string, href: string) {
   const isRoot = href.split('/').filter(Boolean).length <= 1
   if (isRoot) return pathname === href
@@ -51,7 +47,6 @@ export default function SidebarNav({
   const pathname = usePathname()
   const navRef = useRef<HTMLElement>(null)
 
-  // On phones the top nav scrolls sideways — keep the active tab in view.
   useEffect(() => {
     const nav = navRef.current
     if (!nav) return
