@@ -3,7 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import AppShell from '@/components/app-shell'
 import type { NavItem } from '@/components/sidebar-nav'
 
-const NAV: NavItem[] = [{ href: '/admin', label: 'Clients', icon: 'building-2' }]
+const NAV: NavItem[] = [
+  { href: '/admin', label: 'Clients', icon: 'building-2' },
+  { href: '/admin/health', label: 'Health', icon: 'activity' },
+]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
