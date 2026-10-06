@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import PageHeader from '@/components/ui/page-header'
 import EmptyState from '@/components/ui/empty-state'
-import { CheckCircle2, AlertTriangle, XCircle, type LucideIcon } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, XCircle, Calendar, type LucideIcon } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { icon: LucideIcon; tone: string; label: string; message: string }> = {
   ACTIVE: {
@@ -14,19 +14,19 @@ const STATUS_CONFIG: Record<string, { icon: LucideIcon; tone: string; label: str
     icon: AlertTriangle,
     tone: 'text-warning bg-warning/10',
     label: 'Payment due',
-    message: "Your last payment didn't go through. Update your payment method to avoid interruption.",
+    message: 'Your subscription needs to be renewed. Please send your payment to keep your assistant active.',
   },
   CANCELED: {
     icon: XCircle,
     tone: 'text-danger bg-danger/10',
     label: 'Inactive',
-    message: 'Your subscription is inactive. Reactivate to bring your assistant back online.',
+    message: 'Your subscription is inactive. Contact us to reactivate your assistant.',
   },
   EXPIRED: {
     icon: XCircle,
     tone: 'text-danger bg-danger/10',
     label: 'Inactive',
-    message: 'Your subscription is inactive. Reactivate to bring your assistant back online.',
+    message: 'Your subscription is inactive. Contact us to reactivate your assistant.',
   },
   INCOMPLETE: {
     icon: AlertTriangle,
@@ -44,7 +44,12 @@ export default async function BillingPage() {
     .select('plan_name, monthly_fee, currency, status, next_billing_date')
     .maybeSingle()
 
-  const status = subscription?.status ?? 'INCOMPLETE'
+  const daysLeft = subscription?.next_billing_date
+    ? Math.ceil((new Date(subscription.next_billing_date).getTime() - Date.now()) / 86400000)
+    : null
+  const isExpired = daysLeft !== null && daysLeft <= 0
+
+  const status = isExpired ? 'PAST_DUE' : subscription?.status ?? 'INCOMPLETE'
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.INCOMPLETE
   const Icon = config.icon
   const isActive = status === 'ACTIVE'
@@ -74,18 +79,38 @@ export default async function BillingPage() {
         <p className="mb-5 text-sm text-fg-muted">{config.message}</p>
 
         {subscription?.next_billing_date && (
-          <div className="mb-5 flex items-center justify-between gap-2 border-t border-border pt-4 text-sm">
-            <span className="text-fg-subtle">Next billing</span>
-            <span className="text-fg">{subscription.next_billing_date}</span>
+          <div className="mb-5 space-y-2 border-t border-border pt-4 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-fg-subtle">
+                <Calendar size={14} /> {isExpired ? 'Expired on' : 'Renews on'}
+              </span>
+              <span className="text-fg">{new Date(subscription.next_billing_date).toLocaleDateString()}</span>
+            </div>
+            {daysLeft !== null && (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-fg-subtle">Time remaining</span>
+                <span
+                  className={
+                    isExpired
+                      ? 'font-medium text-danger'
+                      : daysLeft <= 7
+                        ? 'font-medium text-warning'
+                        : 'font-medium text-success'
+                  }
+                >
+                  {isExpired ? `Expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) === 1 ? '' : 's'} ago` : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
         <button
           disabled
-          title="Payment management isn't connected yet"
+          title="Payment management isn't connected yet — contact us to renew"
           className="w-full cursor-not-allowed rounded-lg border border-border px-4 py-2 text-sm font-medium text-fg-subtle opacity-60"
         >
-          {isActive ? 'Manage subscription' : 'Reactivate plan'}
+          {isActive ? 'Manage subscription' : 'Contact us to renew'}
         </button>
       </div>
 
