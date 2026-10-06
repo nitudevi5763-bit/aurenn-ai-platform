@@ -5,25 +5,34 @@ import {
   regenerateSecretAction,
   updateAssistantConnectionAction,
   updateClientStatusAction,
+  recordManualPaymentAction,
 } from '@/app/admin/actions'
 import SubmitButton from '@/components/submit-button'
 import TestConnectionButton from '@/components/test-connection-button'
+import CopyReminderButton from '@/components/copy-reminder-button'
 import KpiCard from '@/components/ui/kpi-card'
 import StatusBadge from '@/components/ui/status-badge'
 import PageHeader from '@/components/ui/page-header'
-import { Users, DollarSign } from 'lucide-react'
+import { Users, DollarSign, Calendar } from 'lucide-react'
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createServerClient()
 
-  const [{ data: client }, { data: connection }, { count: totalLeads }] = await Promise.all([
-    supabase.from('clients').select('*').eq('id', id).single(),
-    supabase.from('assistant_connections').select('*').eq('client_id', id).maybeSingle(),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('client_id', id),
-  ])
+  const [{ data: client }, { data: connection }, { data: subscription }, { count: totalLeads }] =
+    await Promise.all([
+      supabase.from('clients').select('*').eq('id', id).single(),
+      supabase.from('assistant_connections').select('*').eq('client_id', id).maybeSingle(),
+      supabase.from('subscriptions').select('*').eq('client_id', id).maybeSingle(),
+      supabase.from('leads').select('id', { count: 'exact', head: true }).eq('client_id', id),
+    ])
 
   if (!client) redirect('/admin')
+
+  const daysLeft = subscription?.next_billing_date
+    ? Math.ceil((new Date(subscription.next_billing_date).getTime() - Date.now()) / 86400000)
+    : null
+  const isExpired = daysLeft !== null && daysLeft <= 0
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -73,6 +82,51 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           <Detail label="Country" value={client.country} />
           <Detail label="Contact email" value={client.contact_email} />
         </dl>
+      </section>
+
+      <section className="mb-6 rounded-xl border border-border bg-surface p-5 sm:p-6">
+        <h2 className="mb-4 text-sm font-medium text-fg-muted">Subscription &amp; billing</h2>
+        {!subscription ? (
+          <p className="text-fg-subtle">No subscription record found.</p>
+        ) : (
+          <div className="space-y-4 text-sm">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-1.5 text-fg-subtle">
+                <Calendar size={14} /> Renews on
+              </span>
+              <span className="text-fg">
+                {subscription.next_billing_date
+                  ? new Date(subscription.next_billing_date).toLocaleDateString()
+                  : '—'}
+              </span>
+              {daysLeft !== null && (
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    isExpired
+                      ? 'bg-danger/10 text-danger'
+                      : daysLeft <= 7
+                        ? 'bg-warning/10 text-warning'
+                        : 'bg-success/10 text-success'
+                  }`}
+                >
+                  {isExpired ? `Expired ${Math.abs(daysLeft)}d ago` : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-3 border-t border-border pt-4">
+              <RecordPaymentButton clientId={client.id} />
+              {subscription.next_billing_date && (
+                <CopyReminderButton
+                  clientName={client.name}
+                  monthlyFee={client.monthly_fee}
+                  daysLeft={daysLeft ?? 0}
+                  endDate={new Date(subscription.next_billing_date).toLocaleDateString()}
+                />
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="rounded-xl border border-border bg-surface p-5 sm:p-6">
@@ -163,4 +217,9 @@ function Detail({ label, value }: { label: string; value: string | null }) {
       <p className="break-words text-fg">{value || '—'}</p>
     </div>
   )
+}
+
+function RecordPaymentButton({ clientId }: { clientId: string }) {
+  'use client'
+  return null
 }
