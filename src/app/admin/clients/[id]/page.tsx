@@ -5,11 +5,11 @@ import {
   regenerateSecretAction,
   updateAssistantConnectionAction,
   updateClientStatusAction,
-  recordManualPaymentAction,
 } from '@/app/admin/actions'
 import SubmitButton from '@/components/submit-button'
 import TestConnectionButton from '@/components/test-connection-button'
 import CopyReminderButton from '@/components/copy-reminder-button'
+import RecordPaymentButton from '@/components/record-payment-button'
 import KpiCard from '@/components/ui/kpi-card'
 import StatusBadge from '@/components/ui/status-badge'
 import PageHeader from '@/components/ui/page-header'
@@ -109,7 +109,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                         : 'bg-success/10 text-success'
                   }`}
                 >
-                  {isExpired ? `Expired ${Math.abs(daysLeft)}d ago` : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+                  {isExpired
+                    ? `Expired ${Math.abs(daysLeft)}d ago`
+                    : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
                 </span>
               )}
             </div>
@@ -217,9 +219,4 @@ function Detail({ label, value }: { label: string; value: string | null }) {
       <p className="break-words text-fg">{value || '—'}</p>
     </div>
   )
-}
-
-function RecordPaymentButton({ clientId }: { clientId: string }) {
-  'use client'
-  return null
 }
