@@ -76,6 +76,8 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.type === 'ping') {
+    // Connection tests always work, even on an expired subscription — this
+    // is an admin diagnostic action, not customer data.
     await supabase
       .from('assistant_connections')
       .update({ status: 'connected', last_event_at: new Date().toISOString() })
@@ -84,6 +86,29 @@ export async function POST(req: NextRequest) {
     await logEvent(supabase, clientId, 'ping', body, 'success', null)
 
     return NextResponse.json({ success: true, message: 'pong' }, { status: 200, headers: CORS_HEADERS })
+  }
+
+  // Real customer data (lead/conversation/appointment) is gated on an
+  // active, unexpired subscription. The bot's own chat keeps working
+  // either way — this only stops new data from reaching the dashboard.
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status, next_billing_date')
+    .eq('client_id', clientId)
+    .maybeSingle()
+
+  if (subscription) {
+    const isExpired =
+      subscription.status !== 'ACTIVE' ||
+      (subscription.next_billing_date && new Date(subscription.next_billing_date) < new Date())
+
+    if (isExpired) {
+      await logEvent(supabase, clientId, body.type, body, 'error', 'Subscription expired or inactive')
+      return NextResponse.json(
+        { error: 'Subscription expired or inactive — contact Aurenn AI to renew.' },
+        { status: 402, headers: CORS_HEADERS }
+      )
+    }
   }
 
   try {
@@ -205,10 +230,6 @@ async function upsertLead(
   return { id: created.id, isNew: true }
 }
 
-// Scores the lead via Gemini and saves the result. Silently does nothing
-// if scoring fails or isn't configured — a lead is never lost over this.
-// If the caller explicitly set a priority, that's respected and only the
-// score/summary get filled in.
 async function maybeScoreLead(
   supabase: ReturnType<typeof createAdminClient>,
   leadId: string,
