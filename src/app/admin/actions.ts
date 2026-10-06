@@ -98,12 +98,18 @@ export async function createClientAction(prevState: { error: string | null }, fo
     return { error: connectionError.message }
   }
 
+  // New clients start with a 30-day runway on manual billing, so there's
+  // always a baseline countdown instead of an empty/null date.
+  const initialBillingDate = new Date()
+  initialBillingDate.setDate(initialBillingDate.getDate() + 30)
+
   const { error: subscriptionError } = await admin.from('subscriptions').insert({
     client_id: newClient.id,
     monthly_fee: monthlyFee,
     setup_fee: setupFee,
     currency: 'USD',
     status: 'ACTIVE',
+    next_billing_date: initialBillingDate.toISOString().slice(0, 10),
   })
 
   if (subscriptionError) {
@@ -215,4 +221,44 @@ export async function testConnectionAction(
       message: err instanceof Error ? err.message : 'Could not reach the ingest API.',
     }
   }
+}
+
+// Called after you've manually collected a payment from a client (bank
+// transfer, UPI, PayPal, etc.) outside the platform. Extends their billing
+// date by 30 days — from today if they'd already expired, or from their
+// current date if they paid early, so early payment never loses days.
+export async function recordManualPaymentAction(
+  clientId: string,
+  _prevState: { success: boolean; message: string } | null,
+  _formData: FormData
+) {
+  await requireAdmin()
+
+  const admin = createAdminClient()
+
+  const { data: subscription } = await admin
+    .from('subscriptions')
+    .select('next_billing_date')
+    .eq('client_id', clientId)
+    .maybeSingle()
+
+  const now = new Date()
+  const currentEnd = subscription?.next_billing_date ? new Date(subscription.next_billing_date) : now
+  const base = currentEnd > now ? currentEnd : now
+  base.setDate(base.getDate() + 30)
+  const newDate = base.toISOString().slice(0, 10)
+
+  const { error } = await admin
+    .from('subscriptions')
+    .update({ status: 'ACTIVE', next_billing_date: newDate })
+    .eq('client_id', clientId)
+
+  if (error) {
+    return { success: false, message: error.message }
+  }
+
+  revalidatePath(`/admin/clients/${clientId}`)
+  revalidatePath('/admin')
+
+  return { success: true, message: `Payment recorded — subscription now runs until ${newDate}.` }
 }
